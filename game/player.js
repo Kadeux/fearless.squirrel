@@ -6,7 +6,7 @@ var Player = function(name, color, position, direction) {
     this.bullets = new Array();
     this.direction = direction;
     this.speed = 0;
-
+    jQuery(''+this.name+' >.life').text(this.life);
     this.material = new THREE.MeshLambertMaterial({
         color: color,
         });
@@ -22,10 +22,27 @@ var Player = function(name, color, position, direction) {
 
 Player.prototype.dead = function () {
     this.graphic.position.z = this.graphic.position.z-0.1;
-        //Nettoyage de la div container
+    this.life--;
+
+    //Nettoyage de la div container
         $("#container").html("");
-        jQuery('#'+this.name+' >.life').text("Tu es mort !");
-        init();
+        if (this.life <= 0) {
+            jQuery('#'+this.name+' >.life').text("Tu es mort !");
+            scene.remove(this.graphic);
+            this.speed = 0;
+            if (keyboard.pressed('space'))
+            {
+                init()
+                createPlayers()
+                displayPlayers()
+            }
+        }
+        else {
+            // modify html div
+            jQuery('#'+this.name+' >.life').text(this.life);
+            init()
+            displayPlayers()
+        }
 }
 
 Player.prototype.accelerate = function (distance) {
@@ -66,7 +83,6 @@ Player.prototype.move = function () {
         this.speed * Math.sin(this.direction) + this.position.y,
         this.graphic.position.z
     );
-
     this.position = moveTo;
 
     if (this.speed > 0) {
@@ -75,11 +91,30 @@ Player.prototype.move = function () {
     else if (this.speed < 0) {
         this.speed = this.speed + 0.04;
     }
+    if (this.position.x <= -WIDTH / 2)
+    {
+        this.position.x = -WIDTH / 2;
+    }
+    if (this.position.x >= WIDTH / 2)
+    {
+        this.position.x = WIDTH / 2;
+    }
+    if (this.position.y >= HEIGHT / 2)
+    {
+        this.position.y = HEIGHT / 2;
+    }
+    if (this.position.y <= -HEIGHT / 2)
+    {
+        this.position.y = -HEIGHT / 2;
+    }
+    var nb_tile = 10;
+    var sizeOfTileX = WIDTH / nb_tile;
+    var sizeOfTileY = HEIGHT / nb_tile;
 
     this.graphic.position.x = this.position.x;
     this.graphic.position.y = this.position.y;
-    
+
     light1.position.x = this.position.x;
     light1.position.y = this.position.y;
-   //light1.position.z = this.graphic.position.z + 500;
+    // light1.position.z = this.graphic.position.z + 500;
 };

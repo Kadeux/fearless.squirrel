@@ -2,7 +2,7 @@ var bulletTime1 = 0;
 
 var bullet_player1_material = new THREE.MeshLambertMaterial(
 {
-    color: 0x00ff00, 
+    color: 0x00ff00,
     transparent: false
 });
 
@@ -19,7 +19,7 @@ function shoot()
         bullet.angle = player1.direction;
         player1.bullets.push(bullet);
         bulletTime1 = clock.getElapsedTime();
-    } 
+    }
 
     // move bullets
     var moveDistance = 5;
@@ -52,6 +52,18 @@ function bullet_collision()
             i--;
         }
     }
+    for (var i = 0; i < player1.bullets.length; i++){
+        for (var j = 0; j < ennemies.length; j++)
+        {
+            if (Math.abs(player1.bullets[i].position.x - ennemies[j].graphic.position.x) < 10 &&
+                Math.abs(player1.bullets[i].position.y - ennemies[j].graphic.position.y) < 10)
+            {
+                scene.remove(player1.bullets[i]);
+                ennemies[j].dead();
+                player1.bullets.splice(i, 1);
+            }
+        }
+    }
 
 }
 
@@ -68,33 +80,33 @@ function player_collision()
     if ( y > HEIGHT )
         player1.graphic.position.y -= y - HEIGHT;
 
+    // collision between player and ennemies
+    for (var i = 0; i < ennemies.length; i++)
+    {
+        if (Math.abs(player1.graphic.position.x - ennemies[i].graphic.position.x) < 10 &&
+            Math.abs(player1.graphic.position.y - ennemies[i].graphic.position.y) < 10)
+        {
+            player1.dead();
+        }
+    }
+
 }
 
 function player_falling()
 {
-    var nb_tile = 10;
-    var sizeOfTileX = WIDTH / nb_tile;
-    var sizeOfTileY = HEIGHT / nb_tile;
-    var x = player1.graphic.position.x | 0;
-    var y = player1.graphic.position.y | 0;
-    var length = noGround.length;
-    var element = null;
 
     for (var i = 0; i < length; i++) {
-        element = noGround[i];
+        var x = player1.graphic.position.x;
+        var y = player1.graphic.position.y;
+        var element = noGround[i];
+        var beginTileX = (element[0]) - sizeOfTileX / 2;
+        var beginTileY = (element[1]) - sizeOfTileY / 2;
+        var endTileX = (element[0] + sizeOfTileX / 2);
+        var endTileY = (element[1] + sizeOfTileY / 2);
 
-        var tileX = (element[0]) | 0;
-        var tileY = (element[1]) | 0;
-        var mtileX = (element[0] + sizeOfTileX) | 0;
-        var mtileY = (element[1] + sizeOfTileY) | 0;
-
-        if ((x > tileX)
-            && (x < mtileX)
-            && (y > tileY) 
-            && (y < mtileY))
-        {
-           player1.dead();
+        if (x > beginTileX && x < endTileX && y > beginTileY && y < endTileY){
+            player1.dead()
         }
-    }
 
+    }
 }
